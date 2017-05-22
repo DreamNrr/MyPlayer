@@ -38,6 +38,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private static final int HIDE_MEDIACONTROLLER = 1;
     private static final int DEFUALT_SCREEN = 0;
     private static final int FULL_SCREEN = 1;
+    private static final int SHOW_NET_SPEED = 2;
     private LinearLayout ll_buffering;
     private TextView tv_net_speed;
     private boolean isNetUri;
@@ -50,6 +51,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private Uri uri;
     private static final int PROGRESS = 0;
     private ArrayList<MediaItem> mediaItems;
+    private LinearLayout ll_loading;
+    private TextView tv_loading_net_speed;
 
     private LinearLayout llTop;
     private TextView tvName;
@@ -101,6 +104,9 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         vv = (VideoView)findViewById(R.id.vv);
         ll_buffering = (LinearLayout) findViewById(R.id.ll_buffering);
         tv_net_speed = (TextView) findViewById(R.id.tv_net_speed);
+        ll_loading = (LinearLayout)findViewById(R.id.ll_loading);
+        tv_loading_net_speed = (TextView)findViewById(R.id.tv_loading_net_speed);
+
 
         btnVoice.setOnClickListener( this );
         btnSwitchPlayer.setOnClickListener( this );
@@ -111,6 +117,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         btnSwitchScreen.setOnClickListener( this );
         seekbarVoice.setMax(maxVoice);
         seekbarVoice.setProgress(currentVoice);
+        handler.sendEmptyMessage(SHOW_NET_SPEED);
     }
 
     @Override
@@ -306,6 +313,14 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what){
+                case SHOW_NET_SPEED:
+                    if(isNetUri){
+                        String netSpeed = utils.getNetSpeed(SystemVideoPlayerActivity.this);
+                        tv_loading_net_speed.setText("正在加载中...."+netSpeed);
+                        tv_net_speed.setText("正在缓冲...."+netSpeed);
+                        sendEmptyMessageDelayed(SHOW_NET_SPEED,1000);
+                    }
+                    break;
                 case PROGRESS:
                     int currentPosition = vv.getCurrentPosition();
                     seekbarVideo.setProgress(currentPosition);
@@ -350,6 +365,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 //vv.seekTo(100);
                 vv.start();//开始播放
                 handler.sendEmptyMessage(PROGRESS);
+                //隐藏加载效果
+                ll_loading.setVisibility(View.GONE);
                 hideMediaController();
 
                 setVideoType(DEFUALT_SCREEN);
@@ -554,6 +571,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             vv.setVideoPath(mediaItem.getData());
             tvName.setText(mediaItem.getName());
             isNetUri = utils.isNetUri(mediaItem.getData());
+            ll_loading.setVisibility(View.INVISIBLE);
             //设置按钮状态
             setButtonStatus();
         }
@@ -566,6 +584,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             vv.setVideoPath(mediaItem.getData());
             tvName.setText(mediaItem.getName());
             isNetUri = utils.isNetUri(mediaItem.getData());
+            ll_loading.setVisibility(View.INVISIBLE);
             //设置按钮状态
             setButtonStatus();
         }else{
