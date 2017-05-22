@@ -319,6 +319,15 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                     }else {
                         seekbarVideo.setSecondaryProgress(0);
                     }
+                   if(isNetUri && vv.isPlaying()) {
+                       int duration = currentPosition - preCurrentPosition;
+                       if(duration <500) {
+                           ll_buffering.setVisibility(View.VISIBLE);
+                       }else {
+                           ll_buffering.setVisibility(View.GONE);
+                       }
+                       preCurrentPosition = currentPosition;
+                   }
                     sendEmptyMessageDelayed(PROGRESS,1000);
                     break;
                 case HIDE_MEDIACONTROLLER:
