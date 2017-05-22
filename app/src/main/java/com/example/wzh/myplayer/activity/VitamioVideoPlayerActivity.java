@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,13 +27,15 @@ import android.widget.Toast;
 import com.example.wzh.myplayer.R;
 import com.example.wzh.myplayer.domain.MediaItem;
 import com.example.wzh.myplayer.utils.Utils;
-import com.example.wzh.myplayer.view.VideoView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class SystemVideoPlayerActivity extends AppCompatActivity implements View.OnClickListener {
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.widget.VideoView;
+
+public class VitamioVideoPlayerActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int HIDE_MEDIACONTROLLER = 1;
     private static final int DEFUALT_SCREEN = 0;
     private static final int FULL_SCREEN = 1;
@@ -313,16 +314,9 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what){
-                case SHOW_NET_SPEED:
-                    if(isNetUri){
-                        String netSpeed = utils.getNetSpeed(SystemVideoPlayerActivity.this);
-                        tv_loading_net_speed.setText("正在加载中...."+netSpeed);
-                        tv_net_speed.setText("正在缓冲...."+netSpeed);
-                        sendEmptyMessageDelayed(SHOW_NET_SPEED,1000);
-                    }
-                    break;
+
                 case PROGRESS:
-                    int currentPosition = vv.getCurrentPosition();
+                    int currentPosition = (int) vv.getCurrentPosition();
                     seekbarVideo.setProgress(currentPosition);
                     tvCurrentTime.setText(utils.stringForTime(currentPosition));
                     tvSystemTime.setText(getSystemTime());
@@ -334,15 +328,15 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                     }else {
                         seekbarVideo.setSecondaryProgress(0);
                     }
-                   if(isNetUri && vv.isPlaying()) {
-                       int duration = currentPosition - preCurrentPosition;
-                       if(duration <500) {
-                           ll_buffering.setVisibility(View.VISIBLE);
-                       }else {
-                           ll_buffering.setVisibility(View.GONE);
-                       }
-                       preCurrentPosition = currentPosition;
-                   }
+                    if(isNetUri && vv.isPlaying()) {
+                        int duration = currentPosition - preCurrentPosition;
+                        if(duration <500) {
+                            ll_buffering.setVisibility(View.VISIBLE);
+                        }else {
+                            ll_buffering.setVisibility(View.GONE);
+                        }
+                        preCurrentPosition = currentPosition;
+                    }
                     sendEmptyMessageDelayed(PROGRESS,1000);
                     break;
                 case HIDE_MEDIACONTROLLER:
@@ -358,7 +352,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 videoWidth = mp.getVideoWidth();
                 videoHeight = mp.getVideoHeight();
                 //得到视频的总时长
-                int duration = vv.getDuration();
+                int duration = (int) vv.getDuration();
                 seekbarVideo.setMax(duration);
                 //设置文本总时间
                 tvDuration.setText(utils.stringForTime(duration));
