@@ -40,6 +40,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private static final int FULL_SCREEN = 1;
     private LinearLayout ll_buffering;
     private TextView tv_net_speed;
+    private boolean isNetUri;
 
     private  float startY;
     private float startX;
@@ -126,29 +127,24 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         setData();
         //设置播放地址
         vv.setVideoURI(uri);
-
-
     }
 
     private void setData() {
-
         if(mediaItems != null && mediaItems.size()>0) {
             MediaItem mediaItem = mediaItems.get(position);
             tvName.setText(mediaItem.getName());
             vv.setVideoPath(mediaItem.getData());
+            isNetUri = utils.isNetUri(mediaItem.getData());
         }else if(uri != null){
             vv.setVideoURI(uri);
             tvName.setText(uri.toString());
+            isNetUri = utils.isNetUri(uri.toString());
         }
         setButtonStatus();
-
-
-
     }
 
     private void initData() {
         utils = new Utils();
-
         //注册监听电量变化广播
         receiver = new MyBroadCastReceiver();
         IntentFilter intentFilter  = new IntentFilter();
@@ -315,6 +311,14 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                     seekbarVideo.setProgress(currentPosition);
                     tvCurrentTime.setText(utils.stringForTime(currentPosition));
                     tvSystemTime.setText(getSystemTime());
+                    if(isNetUri) {
+                        int bufferPercentage = vv.getBufferPercentage();
+                        int totalBuffer = bufferPercentage * seekbarVideo.getMax();
+                        int SecondaryProgress = totalBuffer / 100;
+                        seekbarVideo.setSecondaryProgress(SecondaryProgress);
+                    }else {
+                        seekbarVideo.setSecondaryProgress(0);
+                    }
                     sendEmptyMessageDelayed(PROGRESS,1000);
                     break;
                 case HIDE_MEDIACONTROLLER:
@@ -497,22 +501,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     }
 
 
-    private void setNextVideo() {
-        position++;
-        if(position < mediaItems.size()){
-            //还是在列表范围内容
-            MediaItem mediaItem = mediaItems.get(position);
-            vv.setVideoPath(mediaItem.getData());
-            tvName.setText(mediaItem.getName());
-            //设置按钮状态
-            setButtonStatus();
-        }else{
-            Toast.makeText(this,"退出播放器",Toast.LENGTH_SHORT).show();
-            finish();
 
-
-        }
-    }
 
     private void setButtonStatus() {
         if(mediaItems != null && mediaItems.size() >0){
@@ -555,9 +544,24 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             MediaItem mediaItem = mediaItems.get(position);
             vv.setVideoPath(mediaItem.getData());
             tvName.setText(mediaItem.getName());
-
+            isNetUri = utils.isNetUri(mediaItem.getData());
             //设置按钮状态
             setButtonStatus();
+        }
+    }
+    private void setNextVideo() {
+        position++;
+        if(position < mediaItems.size()){
+            //还是在列表范围内容
+            MediaItem mediaItem = mediaItems.get(position);
+            vv.setVideoPath(mediaItem.getData());
+            tvName.setText(mediaItem.getName());
+            isNetUri = utils.isNetUri(mediaItem.getData());
+            //设置按钮状态
+            setButtonStatus();
+        }else{
+            Toast.makeText(this,"退出播放器",Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
