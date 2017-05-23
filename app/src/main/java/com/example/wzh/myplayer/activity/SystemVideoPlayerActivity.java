@@ -34,6 +34,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import io.vov.vitamio.Vitamio;
+
+
 public class SystemVideoPlayerActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int HIDE_MEDIACONTROLLER = 1;
     private static final int DEFUALT_SCREEN = 0;
@@ -84,6 +87,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private int maxVoice;
     private boolean isMute = false;
     private void findViews() {
+        Vitamio.isInitialized(getApplicationContext());
         setContentView(R.layout.activity_system_video_player);
         llTop = (LinearLayout)findViewById( R.id.ll_top );
         tvName = (TextView)findViewById( R.id.tv_name );

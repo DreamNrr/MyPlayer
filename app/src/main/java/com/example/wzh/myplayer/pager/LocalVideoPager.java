@@ -47,7 +47,7 @@ public class LocalVideoPager extends BaseFragment {
                 Toast.makeText(context, ""+item.toString(), Toast.LENGTH_SHORT).show();
 
                 //把系统的播放器调起来
-                Intent intent = new Intent(context, SystemVideoPlayerActivity.class);
+                Intent intent = new Intent(context,SystemVideoPlayerActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("videoList",mediaItems);
                 intent.putExtra("position",position);
